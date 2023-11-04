@@ -4,7 +4,7 @@
 
 This README provides a concise summary of the data structures and algorithms class project related to the Tattaglia Crime Family hierarchy structure. The project description PDF contains detailed instructions for implementing the project.
 
-This project is a Java implementation for AVL tree.
+This project is a Java implementation for AVL tree structure.
 ## Project Description
 
 The project focuses on understanding and simulating the hierarchical structure of the Tattaglia Crime Family. The family's structure is defined by specific rules and principles:
