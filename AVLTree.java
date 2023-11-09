@@ -9,16 +9,47 @@ import java.io.IOException;
 
 public class AVLTree<K extends String, V extends Double> {
     private Node<K, V> root;
-    private BufferedWriter writer;
+    final private BufferedWriter writer;
+
+    public void printTree() {
+        printTree(root);
+    }
+
+    private void printTree(Node<K, V> node) {
+        if (node == null) {
+            return;
+        }
+        if (node == root){
+            System.out.println("Root: " + node.name + " " + node.GMS);
+        }
+        printTree(node.leftChild);
+        System.out.println(node.name + " " + node.GMS);
+        printTree(node.rightChild);
+    }
 
 
+    /**
+     * function to print meetings when a new member is added
+     * @param node is the superior node
+     * @param name is the name of the new member
+     * @param writer is the BufferedWriter to write to the output file
+     */
     private void printMemberIn(Node<K, V> node, String name, BufferedWriter writer) {
         try {
+            if(name.equals(node.name)){
+                return;
+            }
             writer.write(node.name + " welcomed " + name +  "\n");
         } catch (IOException e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
     }
+
+    /**
+     * Node class for the AVLTree
+     * @param <K> is the name of the member
+     * @param <V> is the GMS of the member
+     */
 
     private static class Node<K, V> {
         K name;
@@ -27,6 +58,11 @@ public class AVLTree<K extends String, V extends Double> {
         Node<K, V> rightChild;
         int height;
 
+        /**
+         * Constructor for the Node class
+         * @param name is the name of the member
+         * @param GMS is the GMS of the member
+         */
         Node(K name, V GMS) {
             this.name = name;
             this.GMS = GMS;
@@ -35,89 +71,126 @@ public class AVLTree<K extends String, V extends Double> {
             this.height = 1;
         }
     }
+
+    /**
+     * Constructor for the AVLTree class
+     * @param GMS is the GMS of the root
+     * @param name is the name of the root
+     * @param writer is the BufferedWriter to write to the output file
+     */
     public AVLTree(V GMS, K name, BufferedWriter writer) {
         this.writer = writer;
-        this.root = null;
-        insert(name, GMS);
+        this.root = new Node<>(name, GMS);
     }
 
+    /**
+     * Constructor for the AVLTree class
+     * @param writer is the BufferedWriter to write to the output file
+     */
     public AVLTree(BufferedWriter writer) {
         this.root = null;
         this.writer = writer;
     }
 
-
-
-
-    public boolean isEmpty() {
-        return this.root == null;
-    }
-
-    public int height() {
-        return height(this.root);
-    }
-
+    /**
+     * function to get the height of a node
+     * @param node is the node to get the height of
+     * @return the height of the node
+     */
     private int height(Node<K, V> node) {
-        return (node != null) ? node.height : 0;
-    }
-
-    public int rank(K name) {
-        Node<K, V> node = find(name, this.root);
-        if (node != null) {
-            return rank(node);
-        } else {
-            return -1; // Node not found
-        }
-    }
-
-    private Node<K, V> find(K name, Node<K, V> node) {
         if (node == null) {
-            return null;
+            return 0;
         }
-        int compareResult = name.compareTo(node.name);
-        if (compareResult < 0) {
-            return find(name, node.leftChild);
-        } else if (compareResult > 0) {
-            return find(name, node.rightChild);
+        return node.height;
+    }
+
+    public void insert(K name, V GMS) {
+        root = insert(root, name, GMS);
+    }
+
+    private Node<K, V> insert(Node<K, V>node, K name, V GMS) {
+        if (node == null) {
+            return new Node<>(name, GMS);
+        }
+
+
+        if (GMS.compareTo(node.GMS) < 0) {
+            node.leftChild = insert(node.leftChild, name, GMS);
+        } else if (GMS.compareTo(node.GMS) > 0) {
+            node.rightChild = insert(node.rightChild, name, GMS);
         } else {
             return node;
         }
+        node.height = 1 + Math.max(height(node.leftChild), height(node.rightChild));
+        return balance(node);
     }
 
-    private int rank(Node<K, V> node) {
-        return height(this.root) - height(node);
+    private Node<K,V> balance(Node<K, V> node) {
+
+        int balance = height(node.leftChild) - height(node.rightChild);
+        if (balance > 1) {
+            if (height(node.leftChild.leftChild) >= height(node.leftChild.rightChild)) {
+                return rightRotate(node);
+            } else {
+                node.leftChild = leftRotate(node.leftChild);
+                return rightRotate(node);
+            }
+        } else if (balance < -1) {
+            if (height(node.rightChild.rightChild) >= height(node.rightChild.leftChild)) {
+                return leftRotate(node);
+            } else {
+                node.rightChild = rightRotate(node.rightChild);
+                return leftRotate(node);
+            }
+        }
+        return node;
     }
 
-    public void clear() {
-        this.root = null;
+    private Node<K, V> rightRotate(Node<K, V> node) {
+        Node<K, V> newRoot = node.leftChild;
+        Node<K, V> temp = newRoot.rightChild;
+        newRoot.rightChild = node;
+        node.leftChild = temp;
+        node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
+        newRoot.height = Math.max(height(newRoot.leftChild), height(newRoot.rightChild)) + 1;
+        return newRoot;
     }
 
-    public void print(){
-        print(this.root);
+    private Node<K, V> leftRotate(Node<K, V> node) {
+        Node<K, V> newRoot = node.rightChild;
+        Node<K, V> temp = newRoot.leftChild;
+        newRoot.leftChild = node;
+        node.rightChild = temp;
+        node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
+        newRoot.height = Math.max(height(newRoot.leftChild), height(newRoot.rightChild)) + 1;
+        return newRoot;
     }
 
-    private void print(Node<K, V> node) {
-        if(node == null) {
+    public void printMemberIn(K name, V GMS, BufferedWriter writer) throws IOException {
+        printMemberIn(this.root, name, GMS, writer);
+    }
+
+    private void printMemberIn(Node<K, V> node, K name, V GMS,BufferedWriter writer) throws IOException{
+        if(node == null){
             return;
         }
-        if(node == this.root) {
-            System.out.print("Root:" + node.name + " " + node.GMS + " ");
+        if(name.equals(node.name)){
+            return;
         }
-        if (node.leftChild == null) {
-            System.out.println("No left child");
-        }
-        else{
-            print(node.leftChild);
-        }
-        if (node.rightChild == null) {
-            System.out.println("No right child");
-        }
-        else{
-            print(node.rightChild);
-        }
-        System.out.println(node.name + " " + node.GMS);
+        if(GMS.compareTo(node.GMS) < 0){
 
+            writer.write(node.name + " welcomed " + name + "\n");
+            printMemberIn(node.leftChild, name, GMS, writer);
+        } else if(GMS.compareTo(node.GMS) > 0){
+            writer.write(node.name + " welcomed " + name + "\n");
+            printMemberIn(node.rightChild, name, GMS, writer);
+        }
     }
+
+
+
+
+
 
 
 }
