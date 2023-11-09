@@ -6,7 +6,10 @@ import java.util.Locale;
 //MEMBER_IN DONE
 //MEMBER_OUT DONE
 //INTEL_TARGET DONE
+//INTEL_DIVIDE DONE
+//INTEL_RANK DONE
 
+//TODO: add necessary comments
 
 
 public class AVLTree<K extends String, V extends Double> {
@@ -269,6 +272,67 @@ public class AVLTree<K extends String, V extends Double> {
             return find(node.rightChild, name, GMS);
         }
         return null;
+    }
+
+    public void intelDivide() throws IOException{
+        int[] arr = intelDivide(root);
+        int num = maxCompare(arr[0], arr[1]);
+        writer.write("Division Analysis Result: "+ num+"\n");
+    }
+
+    private int[] intelDivide(Node<K,V> node){
+        if (node == null) {
+            return new int[] {0, 0};
+        }
+
+        int[] leftResult = intelDivide(node.leftChild);
+        int[] rightResult = intelDivide(node.rightChild);
+
+        int c0 = leftResult[1] + rightResult[1] + 1;
+        int c1 = maxCompare(leftResult[0], leftResult[1]) + maxCompare(rightResult[0], rightResult[1]);
+
+        int[] result = new int[] {c0, c1};
+
+        return result;
+    }
+
+    private int maxCompare(int a, int b){
+        if(a > b){
+            return a;
+        }
+        return b;
+    }
+
+    private int getRank(Node<K,V> node){
+        if(node == null){
+            return -1;
+        }
+        return height(root) - height(node);
+    }
+
+    public void intelRank(K name, V GMS) throws IOException {
+        int rank = getRank(find(root, name, GMS));
+        writer.write("Rank Analysis Result: ");
+        String line = intelRank(root, rank);
+        writer.write(line.trim());
+        writer.write("\n");
+    }
+
+    private String intelRank(Node<K,V> node, int rank) {
+        if (node == null) {
+            return "";
+        }
+
+        if (getRank(node) == rank) {
+            String line = node.name + " " + String.format(Locale.US, "%.3f", node.GMS) + " ";
+            String leftResult = intelRank(node.leftChild, rank);
+            String rightResult = intelRank(node.rightChild, rank);
+            return line + leftResult + rightResult;
+        } else {
+            String leftResult = intelRank(node.leftChild, rank);
+            String rightResult = intelRank(node.rightChild, rank);
+            return leftResult + rightResult;
+        }
     }
 
 

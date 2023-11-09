@@ -4,8 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-//TODO: create other operations in while loop
-//TODO: add necessary comments and documentation
+//TODO: time test
 
 public class Main {
     public static void main(String[] args) {
@@ -51,6 +50,14 @@ public class Main {
                         String name2 = parts[3];
                         Double GMS2 = Double.parseDouble(parts[4]);
                         tree.intelTarget(GMS1,name1, GMS2, name2);
+                    }
+                    else if(command.equals("INTEL_DIVIDE")){
+                        tree.intelDivide();
+                    }
+                    else if(command.equals("INTEL_RANK")){
+                        name = parts[1];
+                        GMS = Double.parseDouble(parts[2]);
+                        tree.intelRank(name, GMS);
                     }
 
             }
