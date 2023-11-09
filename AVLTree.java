@@ -1,9 +1,12 @@
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 //TODO: look at other operations: MEMBER_IN, MEMBER_OUT, INTEL_TARGET, INTEL_DIVIDE, INTEL_RANK
 //MEMBER_IN DONE
 //MEMBER_OUT DONE
+//INTEL_TARGET DONE
+
 
 
 public class AVLTree<K extends String, V extends Double> {
@@ -229,9 +232,44 @@ public class AVLTree<K extends String, V extends Double> {
         return balance(node);
     }
 
+    public void intelTarget(V GMS1, K name1, V GMS2, K name2) throws IOException{
+        Node<K,V> node = intelTarget(root, find(root, name1, GMS1), find(root, name2, GMS2));
+        writer.write("Target Analysis Result: "+ node.name + " "+  String.format(Locale.US, "%.3f", node.GMS)+"\n");
+    }
 
+    private Node<K,V> intelTarget(Node <K,V> node, Node<K,V> node1, Node<K,V> node2){
+        if(node == null){
+            return null;
+        }
+        Double GMS1 = node1.GMS;
+        Double GMS2 = node2.GMS;
+        if(GMS1.compareTo(node.GMS) == 0 || GMS2.compareTo(node.GMS) == 0){
+            return node;
+        }
+        if(GMS1.compareTo(node.GMS) < 0 && GMS2.compareTo(node.GMS) < 0){
+            return intelTarget(node.leftChild, node1, node2);
+        }
+        if(GMS1.compareTo(node.GMS) > 0 && GMS2.compareTo(node.GMS) > 0){
+            return intelTarget(node.rightChild, node1, node2);
+        }
+        return node;
+    }
 
-
+    private Node<K,V> find(Node<K,V> node, K name, V GMS){
+        if(node == null){
+            return null;
+        }
+        if(name.equals(node.name)){
+            return node;
+        }
+        if(GMS.compareTo(node.GMS) < 0){
+            return find(node.leftChild, name, GMS);
+        }
+        if(GMS.compareTo(node.GMS) > 0){
+            return find(node.rightChild, name, GMS);
+        }
+        return null;
+    }
 
 
 

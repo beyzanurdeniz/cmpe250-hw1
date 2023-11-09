@@ -40,10 +40,17 @@ public class Main {
                         tree.printMemberIn(name, GMS, writer);
                         tree.insert(name, GMS);
                     }
-                    if(command.equals("MEMBER_OUT")){
+                    else if(command.equals("MEMBER_OUT")){
                         name = parts[1];
                         GMS = Double.parseDouble(parts[2]);
                         tree.remove(name, GMS);
+                    }
+                    else if(command.equals("INTEL_TARGET")){
+                        String name1 = parts[1];
+                        Double GMS1 = Double.parseDouble(parts[2]);
+                        String name2 = parts[3];
+                        Double GMS2 = Double.parseDouble(parts[4]);
+                        tree.intelTarget(GMS1,name1, GMS2, name2);
                     }
 
             }
