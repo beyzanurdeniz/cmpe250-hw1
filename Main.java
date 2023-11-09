@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         if (args.length < 2) {
             System.err.println("Usage: java Main <input_file> <output_file>");
             return;
@@ -67,5 +68,7 @@ public class Main {
         } catch (IOException e) {
             System.err.println("An error occurred: " + e.getMessage());
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Time: " + (end - start)/100 + "s");
     }
 }

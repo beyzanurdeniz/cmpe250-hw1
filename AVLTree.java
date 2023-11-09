@@ -10,6 +10,7 @@ import java.util.Locale;
 //INTEL_RANK DONE
 
 //TODO: add necessary comments
+//TODO: wrong print while removing
 
 
 public class AVLTree<K extends String, V extends Double> {
@@ -210,12 +211,13 @@ public class AVLTree<K extends String, V extends Double> {
             } else {
                 Node<K, V> temp = node;
                 node = min(temp.rightChild);
+                printMemberOut(node, name, GMS, writer);
                 node.rightChild = removeMin(temp.rightChild);
                 node.leftChild = temp.leftChild;
             }
         }
         node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
-        printMemberOut(node, name, GMS, writer);
+
         return balance(node);
     }
 
