@@ -62,13 +62,14 @@ public class Main {
                     }
 
             }
+            long end = System.currentTimeMillis();
+            System.out.println("Time: " + (end - start)+ "ms");
 
             reader.close();
             writer.close();
         } catch (IOException e) {
             System.err.println("An error occurred: " + e.getMessage());
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Time: " + (end - start)/100 + "s");
+
     }
 }

@@ -4,13 +4,13 @@ import java.util.Locale;
 
 //TODO: look at other operations: MEMBER_IN, MEMBER_OUT, INTEL_TARGET, INTEL_DIVIDE, INTEL_RANK
 //MEMBER_IN DONE
-//MEMBER_OUT DONE
+//MEMBER_OUT
 //INTEL_TARGET DONE
 //INTEL_DIVIDE DONE
 //INTEL_RANK DONE
 
 //TODO: add necessary comments
-//TODO: wrong print while removing
+//TODO: fix rank analysis result
 
 
 public class AVLTree<K extends String, V extends Double> {
@@ -57,6 +57,7 @@ public class AVLTree<K extends String, V extends Double> {
     private void printMemberOut(Node<K, V> node, K name, V GMS,BufferedWriter writer) throws IOException{
         if(node == null){
             writer.write(name+" left the family, replaced by nobody\n");
+            return;
         }
         if(name.equals(node.name)){
             return;
@@ -198,22 +199,23 @@ public class AVLTree<K extends String, V extends Double> {
             return null;
         }
 
-
         if (GMS.compareTo(node.GMS) < 0) {
             node.leftChild = remove(node.leftChild, name, GMS);
         } else if (GMS.compareTo(node.GMS) > 0) {
             node.rightChild = remove(node.rightChild, name, GMS);
         } else {
             if (node.leftChild == null) {
+                printMemberOut(node.rightChild, name, GMS, writer);
                 return node.rightChild;
             } else if (node.rightChild == null) {
+                printMemberOut(node.leftChild, name, GMS, writer);
                 return node.leftChild;
             } else {
                 Node<K, V> temp = node;
                 node = min(temp.rightChild);
-                printMemberOut(node, name, GMS, writer);
                 node.rightChild = removeMin(temp.rightChild);
                 node.leftChild = temp.leftChild;
+                printMemberOut(node, name, GMS, writer);
             }
         }
         node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
@@ -305,15 +307,9 @@ public class AVLTree<K extends String, V extends Double> {
         return b;
     }
 
-    private int getRank(Node<K,V> node){
-        if(node == null){
-            return -1;
-        }
-        return height(root) - height(node);
-    }
 
     public void intelRank(K name, V GMS) throws IOException {
-        int rank = getRank(find(root, name, GMS));
+        int rank = height(find(root, name, GMS));
         writer.write("Rank Analysis Result: ");
         String line = intelRank(root, rank);
         writer.write(line.trim());
@@ -325,15 +321,12 @@ public class AVLTree<K extends String, V extends Double> {
             return "";
         }
 
-        if (getRank(node) == rank) {
+        if (height(node) == rank) {
             String line = node.name + " " + String.format(Locale.US, "%.3f", node.GMS) + " ";
-            String leftResult = intelRank(node.leftChild, rank);
-            String rightResult = intelRank(node.rightChild, rank);
-            return line + leftResult + rightResult;
+            line += intelRank(node.leftChild, rank) + intelRank(node.rightChild, rank);
+            return line;
         } else {
-            String leftResult = intelRank(node.leftChild, rank);
-            String rightResult = intelRank(node.rightChild, rank);
-            return leftResult + rightResult;
+            return intelRank(node.leftChild, rank) + intelRank(node.rightChild, rank);
         }
     }
 
