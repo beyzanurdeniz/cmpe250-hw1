@@ -1,10 +1,9 @@
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-//TODO: fix insert, printMemberIn to print the bosses in the correct order
-//TODO: figure out how to change the root after balancing
-//TODO: look at other operations: MEMBER_OUT, INTEL_TARGET, INTEL_DIVIDE, INTEL_RANK
-
+//TODO: look at other operations: MEMBER_IN, MEMBER_OUT, INTEL_TARGET, INTEL_DIVIDE, INTEL_RANK
+//MEMBER_IN DONE
+//MEMBER_OUT DONE
 
 
 public class AVLTree<K extends String, V extends Double> {
@@ -27,22 +26,36 @@ public class AVLTree<K extends String, V extends Double> {
         printTree(node.rightChild);
     }
 
+    public void printMemberIn(K name, V GMS, BufferedWriter writer) throws IOException {
+        printMemberIn(this.root, name, GMS, writer);
+    }
 
-    /**
-     * function to print meetings when a new member is added
-     * @param node is the superior node
-     * @param name is the name of the new member
-     * @param writer is the BufferedWriter to write to the output file
-     */
-    private void printMemberIn(Node<K, V> node, String name, BufferedWriter writer) {
-        try {
-            if(name.equals(node.name)){
-                return;
-            }
-            writer.write(node.name + " welcomed " + name +  "\n");
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
+    private void printMemberIn(Node<K, V> node, K name, V GMS,BufferedWriter writer) throws IOException{
+        if(node == null){
+            return;
         }
+        if(name.equals(node.name)){
+            return;
+        }
+        if(GMS.compareTo(node.GMS) < 0){
+
+            writer.write(node.name + " welcomed " + name + "\n");
+            printMemberIn(node.leftChild, name, GMS, writer);
+        } else if(GMS.compareTo(node.GMS) > 0){
+            writer.write(node.name + " welcomed " + name + "\n");
+            printMemberIn(node.rightChild, name, GMS, writer);
+        }
+    }
+
+    private void printMemberOut(Node<K, V> node, K name, V GMS,BufferedWriter writer) throws IOException{
+        if(node == null){
+            writer.write(name+" left the family, replaced by nobody\n");
+        }
+        if(name.equals(node.name)){
+            return;
+        }
+        writer.write(name+" left the family, replaced by "+node.name+"\n");
+
     }
 
     /**
@@ -166,25 +179,54 @@ public class AVLTree<K extends String, V extends Double> {
         return newRoot;
     }
 
-    public void printMemberIn(K name, V GMS, BufferedWriter writer) throws IOException {
-        printMemberIn(this.root, name, GMS, writer);
+
+
+    public void remove(K name, V GMS) throws IOException {
+        root = remove(root, name, GMS);
     }
 
-    private void printMemberIn(Node<K, V> node, K name, V GMS,BufferedWriter writer) throws IOException{
-        if(node == null){
-            return;
-        }
-        if(name.equals(node.name)){
-            return;
-        }
-        if(GMS.compareTo(node.GMS) < 0){
 
-            writer.write(node.name + " welcomed " + name + "\n");
-            printMemberIn(node.leftChild, name, GMS, writer);
-        } else if(GMS.compareTo(node.GMS) > 0){
-            writer.write(node.name + " welcomed " + name + "\n");
-            printMemberIn(node.rightChild, name, GMS, writer);
+    private Node<K, V> remove(Node<K, V> node, K name, V GMS) throws IOException {
+        if (node == null) {
+            return null;
         }
+
+
+        if (GMS.compareTo(node.GMS) < 0) {
+            node.leftChild = remove(node.leftChild, name, GMS);
+        } else if (GMS.compareTo(node.GMS) > 0) {
+            node.rightChild = remove(node.rightChild, name, GMS);
+        } else {
+            if (node.leftChild == null) {
+                return node.rightChild;
+            } else if (node.rightChild == null) {
+                return node.leftChild;
+            } else {
+                Node<K, V> temp = node;
+                node = min(temp.rightChild);
+                node.rightChild = removeMin(temp.rightChild);
+                node.leftChild = temp.leftChild;
+            }
+        }
+        node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
+        printMemberOut(node, name, GMS, writer);
+        return balance(node);
+    }
+
+    private Node<K, V> min(Node<K, V> node) {
+        if (node.leftChild == null) {
+            return node;
+        }
+        return min(node.leftChild);
+    }
+
+    private Node<K, V> removeMin(Node<K, V> node) {
+        if (node.leftChild == null) {
+            return node.rightChild;
+        }
+        node.leftChild = removeMin(node.leftChild);
+        node.height = Math.max(height(node.leftChild), height(node.rightChild)) + 1;
+        return balance(node);
     }
 
 

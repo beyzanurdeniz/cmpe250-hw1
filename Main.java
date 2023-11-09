@@ -37,7 +37,13 @@ public class Main {
                     if(command.equals("MEMBER_IN")){
                         name = parts[1];
                         GMS = Double.parseDouble(parts[2]);
+                        tree.printMemberIn(name, GMS, writer);
                         tree.insert(name, GMS);
+                    }
+                    if(command.equals("MEMBER_OUT")){
+                        name = parts[1];
+                        GMS = Double.parseDouble(parts[2]);
+                        tree.remove(name, GMS);
                     }
 
             }
