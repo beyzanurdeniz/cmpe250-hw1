@@ -38,7 +38,6 @@ public class Main {
                         name = parts[1];
                         GMS = Double.parseDouble(parts[2]);
                         tree.insert(name, GMS);
-
                     }
 
             }
